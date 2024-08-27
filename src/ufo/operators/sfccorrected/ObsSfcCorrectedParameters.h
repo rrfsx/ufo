@@ -22,7 +22,7 @@ namespace ufo {
 
 /// enum type for surface correction type, and ParameterTraitsHelper for it
 enum class SfcCorrectionType {
-  UKMO, WRFDA, RRFS_GSL
+  UKMO, WRFDA, GSL
 };
 struct SfcCorrectionTypeParameterTraitsHelper {
   typedef SfcCorrectionType EnumType;
@@ -30,7 +30,7 @@ struct SfcCorrectionTypeParameterTraitsHelper {
   static constexpr util::NamedEnumerator<SfcCorrectionType> namedValues[] = {
     { SfcCorrectionType::UKMO, "UKMO" },
     { SfcCorrectionType::WRFDA, "WRFDA" },
-    { SfcCorrectionType::RRFS_GSL, "RRFS_GSL" }
+    { SfcCorrectionType::GSL, "GSL" }
   };
 };
 
@@ -64,7 +64,7 @@ class ObsSfcCorrectedParameters : public ObsOperatorParametersBase {
      this};
 
   oops::Parameter<SfcCorrectionType> correctionType{"da_sfc_scheme",
-     "Scheme used for surface temperature correction (UKMO or WRFDA)",
+     "Scheme used for surface temperature correction (UKMO, WRFDA or GSL)",
      SfcCorrectionType::UKMO, this};
 
   /// Note: "height" default value has to be consistent with var_geomz defined
@@ -81,6 +81,15 @@ class ObsSfcCorrectedParameters : public ObsOperatorParametersBase {
 
   /// Note: "station_altitude" default value is "stationElevation"
   oops::Parameter<std::string> ObsHeightName{"station_altitude", "stationElevation", this};
+  
+  /// Note: Only relevant if \c SfcCorrectionType is set to GSL, "lapse_rate_option" default value is "LOCAL"
+  oops::Parameter<std::string> LapseRateOption{"lapse_rate_option", "Lapse rate option for surface temperature correction (CONSTANT or LOCAL)", "LOCAL", this};
+
+  /// Note: Only relevant if \c SfcCorrectionType is set to GSL and \c LapseRateOption is set to "CONSTANT", "lapse_rate" default value is adiabatic lapse rate 9.8 K/km
+  oops::Parameter<float> LapseRateValue{"lapse_rate", 9.8, this};
+
+  /// Note: Only relevant if \c SfcCorrectionType is set to GSL and and \c LapseRateOption is set to "LOCAL"
+  oops::Parameter<int> LocalLapseRateLevels{"local_lapse_rate_level", 5, this};
 };
 
 // -----------------------------------------------------------------------------
